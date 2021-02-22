@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>AFL</title>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://d3js.org/d3.v2.js"></script>
+    <script src="d3/d3v4.js"></script>
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <!-- Fonts CSS-->
+    <link rel="stylesheet" href="css/heading.css" />
+    <link rel="stylesheet" href="css/body.css" />
+  </head>
+  <body id="page-top">
+    <nav class="navbar navbar-expand-lg bg-secondary fixed-top" id="mainNav">
+      <div class="container">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top"
+          >Australia Football League</a
+        >
+        <button
+          class="navbar-toggler navbar-toggler-right font-weight-bold bg-primary text-white rounded"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarResponsive"
+          aria-controls="navbarResponsive"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          Menu <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item mx-0 mx-lg-1">
+              <a
+                class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger"
+                href="#portfolio"
+                >Teams</a
+              >
+            </li>
+            <li class="nav-item mx-0 mx-lg-1">
+              <a
+                class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger"
+                href="#about"
+                >Players</a
+              >
+            </li>
+            <li class="nav-item mx-0 mx-lg-1">
+              <a
+                class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger"
+                href="#contact"
+                >Fun Fact</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <header class="masthead bg-primary text-white text-center">
+      <div class="container d-flex align-items-center flex-column">
+        <!-- Masthead Avatar Image--><img
+          class="masthead-avatar mb-5"
+          src="https://cdn.glitch.com/ad18365f-ed28-46e5-8868-b73ec8f9fc41%2F1200px-Australian_Football_League.svg.png?v=1592594044862"
+          alt=""
+        />
+        <!-- Masthead Heading-->
+        <h1 class="masthead-heading mb-0">Australia Football League</h1>
+        <!-- Icon Divider-->
+        <div class="divider-custom divider-light">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
+        <!-- Masthead Subheading-->
+        <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+          Since 1896
+        </p>
+        <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+          The Australian Football League is the pre-eminent and only fully
+          professional men's competition of Australian rules football.
+        </p>
+      </div>
+    </header>
+    <section class="page-section portfolio" id="portfolio">
+      <div class="container">
+        <!-- Portfolio Section Heading-->
+        <div class="text-center">
+          <h2 class="page-section-heading text-secondary mb-0 d-inline-block">
+            Teams
+          </h2>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+            }
+            .imgbox {
+              display: grid;
+              height: 100%;
+            }
+            .center-fit {
+              max-width: 100%;
+              max-height: 100vh;
+              margin: auto;
+            }
+          </style>
+          <a href="map.html" target="_blank">
+            <img class="center-fit" src="afl_2017.gif" alt=""
+          /></a>
+
+          <p>(Click picture to see the Prism Map)</p>
+          <p>
+            There are 18 teams around Australia that 10 teams are located at
+            VIC.
+          </p>
+        </div>
+        <!-- Icon Divider-->
+
+        <div class="divider-custom">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
+        <!-- d3-->
+      </div>
+    </section>
+    <section class="page-section portfolio" id="portfolio">
+      <div id="pieChart" style="text-align:center;"></div>
+      <div id="barChart" style="text-align:center;"></div>
+      <script type="text/javascript">
+        /*
+################ FORMATS ##################
+-------------------------------------------
+*/
+
+        var formatAsPercentage = d3.format("%"),
+          formatAsPercentage1Dec = d3.format(".1%"),
+          formatAsInteger = d3.format(","),
+          fsec = d3.time.format("%S s"),
+          fmin = d3.time.format("%M m"),
+          fhou = d3.time.format("%H h"),
+          fwee = d3.time.format("%a"),
+          fdat = d3.time.format("%d d"),
+          fmon = d3.time.format("%b");
+        /*
+############# PIE CHART ###################
+-------------------------------------------
+*/
+
+        function dsPieChart() {
+          var dataset = [
+            { category: "M.C.G", measure: 0.24 },
+            { category: "DockLands", measure: 0.23 },
+            { category: "Subiaco", measure: 0.1 },
+            { category: "Adelaide Oval", measure: 0.08 },
+            { category: "Gabba", measure: 0.05 },
+            { category: "Carrara", measure: 0.05 },
+            { category: "Others", measure: 0.25 }
+          ];
+          var width = 400,
+            height = 400,
+            outerRadius = Math.min(width, height) / 2,
+            innerRadius = outerRadius * 0.999,
+            // for animation
+            innerRadiusFinal = outerRadius * 0.5,
+            innerRadiusFinal3 = outerRadius * 0.45,
+            color = d3.scale.category20(); //builtin range of colors
+          var vis = d3
+            .select("#pieChart")
+            .append("svg:svg") //create the SVG element inside the <body>
+            .data([dataset]) //associate our data with the document
+            .attr("width", width) //set the width and height of our visualization (these will be attributes of the <svg> tag
+            .attr("height", height)
+            .append("svg:g") //make a group to hold our pie chart
+            .attr(
+              "transform",
+              "translate(" + outerRadius + "," + outerRadius + ")"
+            ); //move the center of the pie chart from 0, 0 to radius, radius
+          var arc = d3.svg
+            .arc() //this will create <path> elements for us using arc data
+            .outerRadius(outerRadius)
+            .innerRadius(innerRadius);
+
+          // for animation
+          var arcFinal = d3.svg
+            .arc()
+            .innerRadius(innerRadiusFinal)
+            .outerRadius(outerRadius);
+          var arcFinal3 = d3.svg
+            .arc()
+            .innerRadius(innerRadiusFinal3)
+            .outerRadius(outerRadius);
+
+          var pie = d3.layout
+            .pie() //this will create arc data for us given a list of values
+            .value(function(d) {
+              return d.measure;
+            }); //we must tell it out to access the value of each element in our data array
+
+          var arcs = vis
+            .selectAll("g.slice") //this selects all <g> elements with class slice (there aren't any yet)
+            .data(pie) //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties)
+            .enter() //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+            .append("svg:g") //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+            .attr("class", "slice") //allow us to style things in the slices (like text)
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout)
+            .on("click", up);
+          arcs
+            .append("svg:path")
+            .attr("fill", function(d, i) {
+              return color(i);
+            }) //set the color for each slice to be chosen from the color function defined above
+            .attr("d", arc) //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+            .append("svg:title") //mouseover title showing the figures
+            .text(function(d) {
+              return (
+                d.data.category + ": " + formatAsPercentage(d.data.measure)
+              );
+            });
+
+          d3.selectAll("g.slice")
+            .selectAll("path")
+            .transition()
+            .duration(750)
+            .delay(10)
+            .attr("d", arcFinal);
+
+          // Add a label to the larger arcs, translated to the arc centroid and rotated.
+          // source: http://bl.ocks.org/1305337#index.html
+          arcs
+            .filter(function(d) {
+              return d.endAngle - d.startAngle > 0.2;
+            })
+            .append("svg:text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
+              return (
+                "translate(" +
+                arcFinal.centroid(d) +
+                ")rotate(" +
+                angle(d) +
+                ")"
+              );
+            })
+            //.text(function(d) { return formatAsPercentage(d.value); })
+            .text(function(d) {
+              return d.data.category;
+            });
+
+          // Computes the label angle of an arc, converting from radians to degrees.
+          function angle(d) {
+            var a = ((d.startAngle + d.endAngle) * 90) / Math.PI - 90;
+            return a > 90 ? a - 180 : a;
+          }
+
+          // Pie chart title
+          vis
+            .append("svg:text")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "middle")
+            .text("Venue Participation")
+            .attr("class", "title");
+
+          function mouseover() {
+            d3.select(this)
+              .select("path")
+              .transition()
+              .duration(750)
+              //.attr("stroke","red")
+              //.attr("stroke-width", 1.5)
+              .attr("d", arcFinal3);
+          }
+
+          function mouseout() {
+            d3.select(this)
+              .select("path")
+              .transition()
+              .duration(750)
+              //.attr("stroke","blue")
+              //.attr("stroke-width", 1.5)
+              .attr("d", arcFinal);
+          }
+
+          function up(d, i) {
+            /* update bar chart when user selects piece of the pie chart */
+            //updateBarChart(dataset[i].category);
+            updateBarChart(d.data.category, color(i));
+          }
+        }
+
+        dsPieChart();
+
+        /*
+############# BAR CHART ###################
+-------------------------------------------
+*/
+
+        var datasetBarChart = [
+          { group: "All", category: "Hawthorn", measure: 71.35 },
+          { group: "All", category: "Sydney", measure: 68.6 },
+          { group: "All", category: "Geelong", measure: 66.06 },
+          { group: "All", category: "West Coast", measure: 61.21 },
+          { group: "All", category: "Richmond", measure: 59.88 },
+          { group: "M.C.G", category: "Hawthorn", measure: 68.97 },
+          { group: "M.C.G", category: "Sydney", measure: 56.52 },
+          { group: "M.C.G", category: "Geelong", measure: 51.16 },
+          { group: "M.C.G", category: "West Coast", measure: 41.18 },
+          { group: "M.C.G", category: "Richmond", measure: 64.29 },
+          { group: "DockLands", category: "Hawthorn", measure: 78.26 },
+          { group: "DockLands", category: "Sydney", measure: 78.95 },
+          { group: "DockLands", category: "Geelong", measure: 75.0 },
+          { group: "DockLands", category: "West Coast", measure: 52.38 },
+          { group: "DockLands", category: "Richmond", measure: 60.0 },
+          { group: "Subiaco", category: "Hawthorn", measure: 50.0 },
+          { group: "Subiaco", category: "Sydney", measure: 44.44 },
+          { group: "Subiaco", category: "Geelong", measure: 37.5 },
+          { group: "Subiaco", category: "West Coast", measure: 68.42 },
+          { group: "Subiaco", category: "Richmond", measure: 62.6 },
+          { group: "Adelaide Oval", category: "Hawthorn", measure: 57.14 },
+          { group: "Adelaide Oval", category: "Sydney", measure: 80.0 },
+          { group: "Adelaide Oval", category: "Geelong", measure: 50.0 },
+          { group: "Adelaide Oval", category: "West Coast", measure: 77.78 },
+          { group: "Adelaide Oval", category: "Richmond", measure: 33.33 },
+          { group: "Gabba", category: "Hawthorn", measure: 50.0 },
+          { group: "Gabba", category: "Sydney", measure: 100.0 },
+          { group: "Gabba", category: "Geelong", measure: 80.0 },
+          { group: "Gabba", category: "West Coast", measure: 83.33 },
+          { group: "Gabba", category: "Richmond", measure: 100.0 },
+          { group: "Carrara", category: "Hawthorn", measure: 50.0 },
+          { group: "Carrara", category: "Sydney", measure: 10.0 },
+          { group: "Carrara", category: "Geelong", measure: 50.0 },
+          { group: "Carrara", category: "West Coast", measure: 33.33 },
+          { group: "Carrara", category: "Richmond", measure: 66.67 },
+          { group: "Others", category: "Hawthorn", measure: 76.0 },
+          { group: "Others", category: "Sydney", measure: 66.67 },
+          { group: "Others", category: "Geelong", measure: 72.73 },
+          { group: "Others", category: "West Coast", measure: 64.22 },
+          { group: "Others", category: "Richmond", measure: 46.43 }
+        ];
+        // set initial group value
+        var group = "All";
+
+        function datasetBarChosen(group) {
+          var ds = [];
+          for (x in datasetBarChart) {
+            if (datasetBarChart[x].group == group) {
+              ds.push(datasetBarChart[x]);
+            }
+          }
+          return ds;
+        }
+
+        function dsBarChartBasics() {
+          var margin = { top: 30, right: 5, bottom: 20, left: 50 },
+            width = 500 - margin.left - margin.right,
+            height = 250 - margin.top - margin.bottom,
+            colorBar = d3.scale.category20(),
+            barPadding = 1;
+          return {
+            margin: margin,
+            width: width,
+            height: height,
+            colorBar: colorBar,
+            barPadding: barPadding
+          };
+        }
+
+        function dsBarChart() {
+          var firstDatasetBarChart = datasetBarChosen(group);
+
+          var basics = dsBarChartBasics();
+
+          var margin = basics.margin,
+            width = basics.width,
+            height = basics.height,
+            colorBar = basics.colorBar,
+            barPadding = basics.barPadding;
+          var xScale = d3.scale
+            .linear()
+            .domain([0, firstDatasetBarChart.length])
+            .range([0, width]);
+          // Create linear y scale
+          // Purpose: No matter what the data is, the bar should fit into the svg area; bars should not
+          // get higher than the svg height. Hence incoming data needs to be scaled to fit into the svg area.
+          var yScale = d3.scale
+            .linear()
+            // use the max funtion to derive end point of the domain (max value of the dataset)
+            // do not use the min value of the dataset as min of the domain as otherwise you will not see the first bar
+            .domain([
+              0,
+              d3.max(firstDatasetBarChart, function(d) {
+                return d.measure;
+              })
+            ])
+            // As coordinates are always defined from the top left corner, the y position of the bar
+            // is the svg height minus the data value. So you basically draw the bar starting from the top.
+            // To have the y position calculated by the range function
+            .range([height, 0]);
+          //Create SVG element
+
+          var svg = d3
+            .select("#barChart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .attr("id", "barChartPlot");
+          var plot = svg
+            .append("g")
+            .attr(
+              "transform",
+              "translate(" + margin.left + "," + margin.top + ")"
+            );
+          plot
+            .selectAll("rect")
+            .data(firstDatasetBarChart)
+            .enter()
+            .append("rect")
+            .attr("x", function(d, i) {
+              return xScale(i);
+            })
+            .attr("width", width / firstDatasetBarChart.length - barPadding)
+            .attr("y", function(d) {
+              return yScale(d.measure);
+            })
+            .attr("height", function(d) {
+              return height - yScale(d.measure);
+            })
+            .attr("fill", "lightgrey");
+
+          // Add y labels to plot
+
+          plot
+            .selectAll("text")
+            .data(firstDatasetBarChart)
+            .enter()
+            .append("text")
+            .text(function(d) {
+              return formatAsInteger(d3.round(d.measure));
+            })
+            .attr("text-anchor", "middle")
+            // Set x position to the left edge of each bar plus half the bar width
+            .attr("x", function(d, i) {
+              return (
+                i * (width / firstDatasetBarChart.length) +
+                (width / firstDatasetBarChart.length - barPadding) / 2
+              );
+            })
+            .attr("y", function(d) {
+              return yScale(d.measure) + 14;
+            })
+            .attr("class", "yAxis");
+          /* moved to CSS			   
+	.attr("font-family", "sans-serif")
+	.attr("font-size", "11px")
+	.attr("fill", "white")
+	*/
+
+          // Add x labels to chart
+
+          var xLabels = svg
+            .append("g")
+            .attr(
+              "transform",
+              "translate(" + margin.left + "," + (margin.top + height) + ")"
+            );
+          xLabels
+            .selectAll("text.xAxis")
+            .data(firstDatasetBarChart)
+            .enter()
+            .append("text")
+            .text(function(d) {
+              return d.category;
+            })
+            .attr("text-anchor", "middle")
+            // Set x position to the left edge of each bar plus half the bar width
+            .attr("x", function(d, i) {
+              return (
+                i * (width / firstDatasetBarChart.length) +
+                (width / firstDatasetBarChart.length - barPadding) / 2
+              );
+            })
+            .attr("y", 15)
+            .attr("class", "xAxis");
+          //.attr("style", "font-size: 12; font-family: Helvetica, sans-serif")
+
+          // Title
+
+          svg
+            .append("text")
+            .attr("x", (width + margin.left + margin.right) / 2)
+            .attr("y", 15)
+            .attr("class", "title")
+            .attr("text-anchor", "middle")
+            .text("Top 5 Team Performances");
+        }
+
+        dsBarChart();
+
+        /* ** UPDATE CHART ** */
+
+        /* updates bar chart on request */
+
+        function updateBarChart(group, colorChosen) {
+          var currentDatasetBarChart = datasetBarChosen(group);
+
+          var basics = dsBarChartBasics();
+
+          var margin = basics.margin,
+            width = basics.width,
+            height = basics.height,
+            colorBar = basics.colorBar,
+            barPadding = basics.barPadding;
+          var xScale = d3.scale
+            .linear()
+            .domain([0, currentDatasetBarChart.length])
+            .range([0, width]);
+          var yScale = d3.scale
+            .linear()
+            .domain([
+              0,
+              d3.max(currentDatasetBarChart, function(d) {
+                return d.measure;
+              })
+            ])
+            .range([height, 0]);
+          var svg = d3.select("#barChart svg");
+
+          var plot = d3.select("#barChartPlot").datum(currentDatasetBarChart);
+          /* Note that here we only have to select the elements - no more appending! */
+          plot
+            .selectAll("rect")
+            .data(currentDatasetBarChart)
+            .transition()
+            .duration(750)
+            .attr("x", function(d, i) {
+              return xScale(i);
+            })
+            .attr("width", width / currentDatasetBarChart.length - barPadding)
+            .attr("y", function(d) {
+              return yScale(d.measure);
+            })
+            .attr("height", function(d) {
+              return height - yScale(d.measure);
+            })
+            .attr("fill", colorChosen);
+
+          plot
+            .selectAll("text.yAxis") // target the text element(s) which has a yAxis class defined
+            .data(currentDatasetBarChart)
+            .transition()
+            .duration(750)
+            .attr("text-anchor", "middle")
+            .attr("x", function(d, i) {
+              return (
+                i * (width / currentDatasetBarChart.length) +
+                (width / currentDatasetBarChart.length - barPadding) / 2
+              );
+            })
+            .attr("y", function(d) {
+              return yScale(d.measure) + 14;
+            })
+            .text(function(d) {
+              return formatAsInteger(d3.round(d.measure));
+            })
+            .attr("class", "yAxis");
+
+          svg
+            .selectAll("text.title") // target the text element(s) which has a title class defined
+            .attr("x", (width + margin.left + margin.right) / 2)
+            .attr("y", 15)
+            .attr("class", "title")
+            .attr("text-anchor", "middle")
+            .text(
+              "Top 5 Team Performance at " + group + " (Count by Win Percent)"
+            );
+        }
+      </script>
+      <section class="page-section portfolio" id="portfolio">
+        <div class="container d-flex align-items-center flex-column">
+          <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+            The vanue does affect the performance of teams, teams like Richmond
+            and Hawthorn have higher win rate at M.C.G that we can say it's
+            because of home advantage. Sydney have 100 percent win rate at Gabba
+            which is insane while they also have 80 percentage win rate at
+            adlaide oval with low win rate at rest venues.
+          </p>
+        </div>
+      </section>
+    </section>
+    <!-- Portfolio Modal-->
+    <section class="page-section bg-primary text-white mb-0" id="about">
+      <div class="container">
+        <!-- About Section Heading-->
+        <div class="text-center">
+          <h2 class="page-section-heading d-inline-block text-white">
+            Players
+          </h2>
+        </div>
+        <!-- Icon Divider-->
+        <div class="divider-custom divider-light">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
+        <!-- About Section Content-->
+      </div>
+    </section>
+    <section class="page-section bg-primary text-white mb-0" id="about">
+      <style>
+        #vis {
+          height: 100%;
+          margin: 0;
+        }
+      </style>
+      <form>
+        <select name="year" id="year">
+          <option value="2012">2012</option>
+          <option value="2013">2013</option>
+          <option value="2014">2014</option>
+          <option value="2015">2015</option>
+          <option value="2016">2016</option>
+          <option value="2017">2017</option>
+          <option value="2018" selected>2018</option>
+        </select>
+      </form>
+      <div id="vis"></div>
+      <script src="js/bar.js"></script>
+    </section>
+    <section class="page-section bg-primary text-white mb-0" id="about">
+      <div class="container d-flex align-items-center flex-column">
+        <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+          If the stats is based on just one year, Tom Rockliff from Brisbane has
+          the highest score of 134.78 in 2014, in terms of overall which we
+          count the average performance of players between 2012 and 2018,
+          Collingwood has average of 116.14 which is the highest. We can say
+          that Collingwood is the region that has best player overall (in terms
+          of 2012-2018).
+        </p>
+      </div>
+    </section>
+    <section class="page-section" id="contact">
+      <div class="container">
+        <!-- Contact Section Heading-->
+        <div class="text-center">
+          <h2 class="page-section-heading text-secondary d-inline-block mb-0">
+            Fun Fact
+          </h2>
+        </div>
+        <!-- Icon Divider-->
+        <div class="divider-custom">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
+        <!-- Contact Section Content-->
+        <div class="row justify-content-center">
+          <div class="col-lg-4">
+            <div class="d-flex flex-column align-items-center">
+              <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+                Does player's height affects his performance?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="contact">
+      <script>
+        var margin = { top: 20, right: 15, bottom: 60, left: 500 },
+          width = 1400 - margin.left - margin.right,
+          height = 600 - margin.top - margin.bottom;
+
+        d3.csv("heightmean.csv", function(data) {
+          // Add X axis
+          var x = d3.scale
+            .linear()
+            .domain([160, 215])
+            .range([0, width]);
+
+          // Add Y axis
+          var y = d3.scale
+            .linear()
+            .domain([-100, 100])
+            .range([height, 0]);
+
+          var chart = d3
+            .select("#heightmean")
+            .append("svg:svg")
+            .attr("width", width + margin.right + margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+            .attr("class", "chart")
+            .attr("id", "heightmean");
+
+          var main = chart
+            .append("g")
+            .attr(
+              "transform",
+              "translate(" + margin.left + "," + margin.top + ")"
+            )
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "main");
+
+          var xAxis = d3.svg
+            .axis()
+            .scale(x)
+            .orient("bottom");
+
+          main
+            .append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .attr("class", "main axis date")
+            .call(xAxis);
+
+          // draw the y axis
+          var yAxis = d3.svg
+            .axis()
+            .scale(y)
+            .orient("left");
+
+          main
+            .append("g")
+            .attr("transform", "translate(0,0)")
+            .attr("class", "main axis date")
+            .call(yAxis);
+
+          var g = main.append("svg:g");
+
+          g.selectAll("scatter-dots")
+            .data(data)
+            .enter()
+            .append("svg:circle")
+            .attr("cx", function(d) {
+              return x(d.x);
+            })
+            .attr("cy", function(d) {
+              return y(d.y);
+            })
+            .attr("r", 8)
+            .style("fill", "#69b3a2");
+        });
+      </script>
+      <div id="heightmean"></div>
+      <div class="container d-flex align-items-center flex-column">
+        <p class="pre-wrap masthead-subheading font-weight-light mb-0">
+          It seems we can't really find a algorithm to fit the model and the
+          distribution of graph looks pretty reasonable, but we can see that
+          majority of players are around 190cm to 196cm with moderate
+          performance (around 0). But also we have some 200cm guys have their
+          points higher than 100, and there is not a single player that goes
+          down to negative 100 instead of heights are lower than 180cm.
+        </p>
+      </div>
+    </section>
+    <footer class="footer text-center">
+      <div class="container">
+        <div class="row">
+          <!-- Footer Location-->
+          <div class="col-lg-4 mb-5 mb-lg-0">
+            <h4 class="mb-4">Database</h4>
+            <a
+              href="https://afltables.com/afl/afl_index.html"
+              target="_blank"
+              class="pre-wrap lead mb-0"
+              >AFL Table</a
+            >
+            <p></p>
+            <a
+              href="https://www.footywire.com/"
+              target="_blank"
+              class="pre-wrap lead mb-0"
+              >Footywire</a
+            >
+            <p></p>
+            <a
+              href="https://www.kaggle.com/stoney71/aflstats"
+              target="_blank"
+              class="pre-wrap lead mb-0"
+              >Kaggle</a
+            >
+          </div>
+          <!-- Footer Social Icons-->
+          <div class="col-lg-4 mb-5 mb-lg-0">
+            <h4 class="mb-4">Social Media</h4>
+            <a
+              class="btn btn-outline-light btn-social mx-1"
+              href="https://www.facebook.com/AFL/"
+              target="_blank"
+              ><i class="fab fa-fw fa-facebook-f"></i></a
+            ><a
+              class="btn btn-outline-light btn-social mx-1"
+              href="https://twitter.com/AFL"
+              target="_blank"
+              ><i class="fab fa-fw fa-twitter"></i
+            ></a>
+          </div>
+          <!-- Footer About Text-->
+          <div class="col-lg-4">
+            <h4 class="mb-4">Contact</h4>
+            <p class="pre-wrap lead mb-0">Tel: (03) 9643 1999</p>
+            <p class="pre-wrap lead mb-0">Email: general@afl.com.au</p>
+            <p class="pre-wrap lead mb-0">
+              Mail: GPO Box 1449, Melbourne VIC 3001
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- Copyright Section-->
+    <section class="copyright py-4 text-center text-white">
+      <div class="container">
+        <small class="pre-wrap">Copyright © Liberta Wang 2020 </small>
+      </div>
+    </section>
+    <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes)-->
+    <div class="scroll-to-top d-lg-none position-fixed">
+      <a
+        class="js-scroll-trigger d-block text-center text-white rounded"
+        href="#page-top"
+        ><i class="fa fa-chevron-up"></i
+      ></a>
+    </div>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <!-- Third party plugin JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- Contact form JS-->
+    <script src="assets/mail/jqBootstrapValidation.js"></script>
+    <script src="assets/mail/contact_me.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
